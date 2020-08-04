@@ -13,3 +13,12 @@ class Product(Model):
 
     class Meta:
         database = inventory
+
+
+def initialize():
+    inventory.connect()
+    inventory.create_tables([Product], safe=True)
+
+
+if __name__ == "__main__":
+    initialize()
