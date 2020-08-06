@@ -12,7 +12,7 @@ inventory = SqliteDatabase('inventory.db')
 class Product(Model):
 
     product_id = AutoField()
-    product_name = TextField()
+    product_name = TextField(unique=True)
     product_quantity = IntegerField()
     product_price = IntegerField()
     date_updated = DateField()
@@ -103,11 +103,19 @@ def view_item():
         try:
             ID = int(ID)
             product = Product.get_by_id(ID)
+
             clear()
             print(f"Name: {product.product_name}\n")
             print(f"Quantity: {product.product_quantity}\n")
-            print(f"Price: ${(product.product_price / 100)}\n")
+            print(
+                f"Price: ${format(product.product_price / 100, '.2f')}\n")
             print(f"Date Updated: {product.date_updated}\n")
+            print(f"ID: {product.product_id}\n")
+
+        except DoesNotExist:
+            clear()
+            print(f"'{ID}' is out of range\n")
+            print("[press ENTER to return to the MAIN MENU, or...]\n")
 
         except ValueError:
             if not ID:
