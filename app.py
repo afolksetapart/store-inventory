@@ -7,6 +7,7 @@ import re
 from peewee import *
 
 inventory = SqliteDatabase('inventory.db')
+errors = []
 
 
 class Product(Model):
@@ -33,21 +34,26 @@ def read_inventory():
         return dict_list
 
 
-def clean_inventory(inventory_data):
-    for item in inventory_data:
-        try:
-            item['product_quantity'] = int(item['product_quantity'])
-            item['product_price'] = int(
-                re.sub('\D', '', item['product_price']))
+def clean_item(item):
+    try:
+        item['product_quantity'] = int(item['product_quantity'])
+        item['product_price'] = int(
+            re.sub('\D', '', item['product_price']))
+        if isinstance(item['date_updated'], str):
             item['date_updated'] = datetime.strptime(
                 item['date_updated'], '%m/%d/%Y')
-        except ValueError:
-            print(
-                f"{item['product_name']} contains unkown value(s) and must be manually reformatted")
+    except ValueError:
+        errors.append(
+            f"Error: {item['product_name']} contains unkown value(s) and must be manually reformatted\n")
+
+
+def clean_inventory(inventory_data):
+    for item in inventory_data:
+        clean_item(item)
     return inventory_data
 
 
-def add_item(item):
+def create_row(item):
     try:
         Product.create(product_name=item['product_name'], product_quantity=item['product_quantity'],
                        product_price=item['product_price'], date_updated=item['date_updated'])
@@ -55,13 +61,13 @@ def add_item(item):
         product_record = Product.get(product_name=item['product_name'])
         product_record.product_quantity = item['product_quantity']
         product_record.product_price = item['product_price']
-        product_record.date_updated = datetime.now()
+        product_record.date_updated = item['date_updated']
         product_record.save()
 
 
 def import_inventory(csv_data):
     for item in csv_data:
-        add_item(item)
+        create_row(item)
 
 
 def clear():
@@ -82,12 +88,16 @@ def menu_loop():
             print(f"{key} => {value.__doc__}")
         print("q => Quit\n")
 
+        if errors:
+            for error in errors:
+                print(error)
+
         selection = input(
             "Please make a selection from the menu above =>  ").lower().strip()
 
         while selection not in menu and selection != 'q':
             selection = input(
-                f"Sorry, '{selection}' is not a valid selection, please try again =>  ")
+                f"Sorry, '{selection}' is not a valid selection, please try again =>  ").lower().strip()
 
         if selection in menu:
             clear()
@@ -128,7 +138,30 @@ def view_item():
 
 def create_item():
     """Add New Item"""
-    pass
+    while True:
+        new_item = OrderedDict()
+
+        new_item['product_name'] = input(
+            "Please Input Product Name =>  ").strip()
+        new_item['product_quantity'] = input(
+            "Please Input Product Quantity =>  ").strip()
+        new_item['product_price'] = input(
+            "Please Input Product Price (USD) =>  ").strip()
+        new_item['date_updated'] = datetime.now()
+
+        clean_item(new_item)
+
+        if errors:
+            clear()
+            for error in errors:
+                print(error)
+                print("Please try again...\n")
+            errors.clear()
+        else:
+            create_row(new_item)
+            input(
+                "\nItem successfully added to the inventory!\n\nPress any key to return to the MAIN MENU...")
+            break
 
 
 def backup_db():
@@ -147,5 +180,9 @@ if __name__ == "__main__":
     initialize()
     data = read_inventory()
     clean_data = clean_inventory(data)
-    import_inventory(clean_data)
-    menu_loop()
+    if errors:
+        for error in errors:
+            print(f"\n{error}")
+    else:
+        import_inventory(clean_data)
+        menu_loop()
