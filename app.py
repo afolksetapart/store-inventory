@@ -143,6 +143,9 @@ def create_item():
 
         new_item['product_name'] = input(
             "Please Input Product Name =>  ").strip()
+        if not new_item['product_name']:
+            break
+
         new_item['product_quantity'] = input(
             "Please Input Product Quantity =>  ").strip()
         new_item['product_price'] = input(
@@ -155,7 +158,8 @@ def create_item():
             clear()
             for error in errors:
                 print(error)
-                print("Please try again...\n")
+                print(
+                    "Please try again...\n[or press ENTER to return to the MAIN MENU]\n")
             errors.clear()
         else:
             create_row(new_item)
