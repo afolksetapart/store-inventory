@@ -7,7 +7,6 @@ import re
 from peewee import *
 
 inventory = SqliteDatabase('inventory.db')
-errors = []
 
 
 class Product(Model):
@@ -194,8 +193,9 @@ def backup_db():
             })
 
 
-# read through CSV file and create list of dicts
 if __name__ == "__main__":
+    errors = []
+
     initialize()
     data = read_inventory()
     clean_data = clean_inventory(data)
