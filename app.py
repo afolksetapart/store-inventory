@@ -75,8 +75,15 @@ def clear():
 
 
 def menu_loop():
+    menu = OrderedDict([
+        ('v', view_item),
+        ('a', create_item),
+        ('b', backup_db)
+    ])
+
     selection = None
     title = "Joe's Inventory"
+
     while selection != 'q':
         clear()
         print("*" * len(title))
@@ -186,12 +193,6 @@ def backup_db():
                 'date_updated': product.date_updated
             })
 
-
-menu = OrderedDict([
-    ('v', view_item),
-    ('a', create_item),
-    ('b', backup_db)
-])
 
 # read through CSV file and create list of dicts
 if __name__ == "__main__":
