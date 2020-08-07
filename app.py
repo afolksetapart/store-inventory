@@ -170,7 +170,21 @@ def create_item():
 
 def backup_db():
     """Back-up Curent Inventory"""
-    pass
+    with open('backup.csv', 'w') as backup:
+        fieldnames = ['product_name', 'product_price',
+                      'product_quantity', 'date_updated']
+        bu_writer = csv.DictWriter(backup, fieldnames=fieldnames)
+
+        bu_writer.writeheader()
+        products = Product.select()
+
+        for product in products:
+            bu_writer.writerow({
+                'product_name': product.product_name,
+                'product_price': product.product_price,
+                'product_quantity': product.product_quantity,
+                'date_updated': product.date_updated
+            })
 
 
 menu = OrderedDict([
