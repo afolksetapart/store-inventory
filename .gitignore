@@ -1,3 +1,5 @@
 Pipfile
 Pipfile.lock
 requirements.txt
+backup.csv
+inventory.db
