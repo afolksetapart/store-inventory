@@ -22,11 +22,13 @@ class Product(Model):
 
 
 def initialize():
+    """Connect to database amd create Product table from model"""
     inventory.connect()
     inventory.create_tables([Product], safe=True)
 
 
 def read_inventory():
+    """Read provided inventory.csv file and return a list of OrderedDicts"""
     with open('inventory.csv') as csv_inventory:
         inventory_reader = csv.DictReader(csv_inventory)
         dict_list = list(inventory_reader)
@@ -34,6 +36,7 @@ def read_inventory():
 
 
 def clean_item(item):
+    """Clean individual OrderedDict and append error to errors list if data cannot be cleaned"""
     try:
         item['product_quantity'] = int(item['product_quantity'])
         item['product_price'] = int(
@@ -47,12 +50,14 @@ def clean_item(item):
 
 
 def clean_inventory(inventory_data):
+    """Clean each OrderedDict in list returned from read_inventory, return clean data"""
     for item in inventory_data:
         clean_item(item)
     return inventory_data
 
 
 def create_row(item):
+    """Create a row in inventory database from OrderedDict"""
     try:
         Product.create(product_name=item['product_name'], product_quantity=item['product_quantity'],
                        product_price=item['product_price'], date_updated=item['date_updated'])
@@ -65,15 +70,18 @@ def create_row(item):
 
 
 def import_inventory(csv_data):
+    """Create row for each OrderedDict in clean data list"""
     for item in csv_data:
         create_row(item)
 
 
 def clear():
+    """Clear terminal screen"""
     os.system('clear')
 
 
 def menu_loop():
+    """Display menu and handle choice"""
     menu = OrderedDict([
         ('v', view_item),
         ('a', create_item),
