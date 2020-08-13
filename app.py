@@ -35,12 +35,23 @@ def read_inventory():
         return dict_list
 
 
+def price_to_cents(price_string):
+    """Check that price input format is correct and if so, convert to int in cents"""
+    match = re.fullmatch('^\D?\d*\.\d{2}$', price_string)
+
+    if match:
+        price = int(re.sub('\D', '', match.string))
+        return price
+    else:
+        errors.append(
+            "Error parsing item price, please use standard USD format ($X.XX)\n")
+
+
 def clean_item(item):
     """Clean individual OrderedDict and append error to errors list if data cannot be cleaned"""
     try:
         item['product_quantity'] = int(item['product_quantity'])
-        item['product_price'] = int(
-            re.sub('\D', '', item['product_price']))
+        item['product_price'] = price_to_cents(item['product_price'])
         if isinstance(item['date_updated'], str):
             item['date_updated'] = datetime.strptime(
                 item['date_updated'], '%m/%d/%Y')
