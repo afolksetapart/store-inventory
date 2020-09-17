@@ -18,4 +18,5 @@ $ python3 app.py
 ## Built With
 
 - Python
+- Peewee
 
